@@ -1,0 +1,1 @@
+- [Planner privacy](planner-privacy.md) — schedules and clinic income require account-isolated cloud persistence.

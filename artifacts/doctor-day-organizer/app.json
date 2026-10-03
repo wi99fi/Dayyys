@@ -1,0 +1,29 @@
+{
+  "expo": {
+    "name": "منظّم يوم الطبيب",
+    "slug": "doctor-day-organizer",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/images/icon.png",
+    "scheme": "doctor-day-organizer",
+    "userInterfaceStyle": "automatic",
+    "supportsRTL": true,
+    "ios": {
+      "supportsTablet": false
+    },
+    "android": {},
+    "web": {
+      "favicon": "./assets/images/icon.png"
+    },
+    "plugins": [
+      "expo-router",
+      "@clerk/expo",
+      "expo-secure-store",
+      "expo-web-browser"
+    ],
+    "experiments": {
+      "typedRoutes": true,
+      "reactCompiler": true
+    }
+  }
+}

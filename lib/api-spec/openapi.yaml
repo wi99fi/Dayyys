@@ -10,6 +10,8 @@ servers:
 tags:
   - name: health
     description: Health operations
+  - name: planner
+    description: Authenticated planner data
 paths:
   /healthz:
     get:
@@ -24,7 +26,137 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/HealthStatus"
+  /planner:
+    get:
+      operationId: getPlannerSnapshot
+      tags: [planner]
+      summary: Get the signed-in user's planner data
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: Planner data grouped by collection
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PlannerSnapshot"
+        "401":
+          description: Authentication required
+  /planner/events:
+    put:
+      operationId: savePlannerEvents
+      tags: [planner]
+      summary: Save the signed-in user's appointments
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                items:
+                  type: array
+                  items:
+                    $ref: "#/components/schemas/PlannerEvent"
+              required: [items]
+      responses:
+        "200":
+          description: Appointments saved
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  items:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/PlannerEvent"
+                required: [items]
+        "401":
+          description: Authentication required
+        "400":
+          description: Invalid appointment data
+  /planner/tasks:
+    put:
+      operationId: savePlannerTasks
+      tags: [planner]
+      summary: Save the signed-in user's tasks
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                items:
+                  type: array
+                  items:
+                    $ref: "#/components/schemas/PlannerTask"
+              required: [items]
+      responses:
+        "200":
+          description: Tasks saved
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  items:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/PlannerTask"
+                required: [items]
+        "401":
+          description: Authentication required
+        "400":
+          description: Invalid task data
+  /planner/shopping:
+    put:
+      operationId: savePlannerShopping
+      tags: [planner]
+      summary: Save the signed-in user's shopping list
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                items:
+                  type: array
+                  items:
+                    $ref: "#/components/schemas/ShoppingItem"
+              required: [items]
+      responses:
+        "200":
+          description: Shopping list saved
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  items:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/ShoppingItem"
+                required: [items]
+        "401":
+          description: Authentication required
+        "400":
+          description: Invalid shopping data
+security:
+  - bearerAuth: []
 components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
   schemas:
     HealthStatus:
       type: object
@@ -33,4 +165,78 @@ components:
           type: string
       required:
         - status
+    PlannerEvent:
+      type: object
+      properties:
+        id:
+          type: string
+        date:
+          type: string
+          format: date
+        startTime:
+          type: string
+          pattern: "^([01][0-9]|2[0-3]):[0-5][0-9]$"
+        durationMinutes:
+          type: integer
+          minimum: 1
+          maximum: 2880
+        type:
+          type: string
+          enum: [hospital, shift, ownClinic, percentageClinic]
+        place:
+          type: string
+        note:
+          type: string
+        clinicName:
+          type: string
+        sharePercent:
+          type: number
+          minimum: 0
+          maximum: 100
+        revenue:
+          type: number
+          minimum: 0
+      required: [id, date, startTime, durationMinutes, type, place, note, clinicName, sharePercent, revenue]
+    PlannerTask:
+      type: object
+      properties:
+        id:
+          type: string
+        text:
+          type: string
+        done:
+          type: boolean
+        dueDate:
+          type: [string, "null"]
+          format: date
+      required: [id, text, done, dueDate]
+    ShoppingItem:
+      type: object
+      properties:
+        id:
+          type: string
+        text:
+          type: string
+        done:
+          type: boolean
+        category:
+          type: [string, "null"]
+          enum: [pharmacy, home, clinic, null]
+      required: [id, text, done, category]
+    PlannerSnapshot:
+      type: object
+      properties:
+        events:
+          type: array
+          items:
+            $ref: "#/components/schemas/PlannerEvent"
+        tasks:
+          type: array
+          items:
+            $ref: "#/components/schemas/PlannerTask"
+        shopping:
+          type: array
+          items:
+            $ref: "#/components/schemas/ShoppingItem"
+      required: [events, tasks, shopping]
 
